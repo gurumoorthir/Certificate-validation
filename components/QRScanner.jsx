@@ -1,6 +1,6 @@
 'use client'
 import { useState } from "react";
-import { QrReader } from "react-qr-reader";
+import { QrReader } from "react-qr-scanner";
 import PropTypes from "prop-types"; // For prop validation
 
 const QRScanner = ({ onQRCodeData }) => {
