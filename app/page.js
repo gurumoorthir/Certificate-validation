@@ -136,7 +136,7 @@ const User = () => {
           {/* QR Scanner */}
           {scannerVisible && (
             <div className="flex justify-center items-center w-full sm:w-3/4 md:w-1/2 h-auto mb-8">
-              <QRScanner onQRCodeData={handleQRCodeData} />
+              {/* <QRScanner onQRCodeData={handleQRCodeData} /> */}
             </div>
           )}
 
