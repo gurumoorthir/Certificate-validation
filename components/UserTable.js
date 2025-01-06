@@ -16,6 +16,7 @@ import {
 } from "lucide-react";
 import { toast } from "react-toastify";
 const UserTable = ({ showVerified }) => {
+  const apiUrl = process.env.NEXT_PUBLIC_API_URL;
   const [accounts, setAccounts] = useState([]);
   const [selectedAccount, setSelectedAccount] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -26,7 +27,8 @@ const UserTable = ({ showVerified }) => {
   useEffect(() => {
     const fetchAccounts = async () => {
       try {
-        const response = await fetch("http://localhost:3000/api/accounts");
+        
+        const response = await fetch(`${apiUrl}/accounts`);
         const data = await response.json();
         setAccounts(data);
       } catch (error) {
@@ -66,13 +68,13 @@ const UserTable = ({ showVerified }) => {
   const updateAccount = async (accountData) => {
     try {
       
-      const response = await fetch("http://localhost:3000/api/addUser", {
+      const response = await fetch(`${apiUrl}/addUser`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(accountData),
       });
 
-      if (!response.ok) throw new Error("Failed to save data");
+      if (!response.ok) toast.error("Failed to save data");
 
       const data= await response.json();
       // console.log(data)
@@ -80,8 +82,8 @@ const UserTable = ({ showVerified }) => {
       
       
     } catch (error) {
-      console.error("Error updating account:", error);
-      throw error;
+      
+      toast.error(error);
     }
   };
 
@@ -118,7 +120,7 @@ const UserTable = ({ showVerified }) => {
       toast.error("Failed to update account", {
         className: "toast-error-custom",
       });
-      console.error("Error updating account:", error);
+      
     }
   };
 

@@ -24,7 +24,8 @@ function Admin() {
     e.preventDefault(); // Prevent form from refreshing the page
 
     try {
-      const response = await fetch("http://localhost:3000/api/login", {
+      const apiUrl = process.env.NEXT_PUBLIC_API_URL;
+      const response = await fetch(`${apiUrl}/login`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

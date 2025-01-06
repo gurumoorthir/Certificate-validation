@@ -34,10 +34,15 @@ export async function GET(request) {
           },
         });
       }
+      const user_update = await prisma.user.findUnique({
+        where: {
+          unique_id: unique_id,
+        },
+      });
       
 
     // Return user or handle not found case
-    if (!user) {
+    if (!user_update) {
       return new Response(
         JSON.stringify({ error: "User not found" }),
         {
@@ -47,12 +52,12 @@ export async function GET(request) {
       );
     }
 
-    return new Response(JSON.stringify(user), {
+    return new Response(JSON.stringify(user_update), {
       status: 200,
       headers: { "Content-Type": "application/json" },
     });
   } catch (error) {
-    console.error("Error fetching user:", error);
+    
     return new Response(
       JSON.stringify({ error: "Failed to fetch user" }),
       {

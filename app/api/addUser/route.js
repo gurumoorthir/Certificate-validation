@@ -58,7 +58,6 @@ export async function POST(request) {
     // Return a successful response with the updated user data
     return new Response(JSON.stringify(updatedUser), { status: 200 });
   } catch (error) {
-    console.error("Error updating user:", error);
     
     return new Response(JSON.stringify({ message: "Failed to update user data" }), { status: 500 });
   }

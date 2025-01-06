@@ -8,7 +8,7 @@ import { PlusCircle, Key, Users, LogOut } from "lucide-react";
 import { useRouter } from "next/navigation";
 const HomePage = () => {
   const router = useRouter();
-  
+  const apiUrl = process.env.NEXT_PUBLIC_API_URL;
   const [accounts, setAccounts] = useState([]);
   const [showVerified, setShowVerified] = useState(false);
   const [showModal, setShowModal] = useState(false);
@@ -22,7 +22,8 @@ const HomePage = () => {
     }
     const fetchAccounts = async () => {
       try {
-        const response = await fetch("http://localhost:3000/api/accounts");
+        
+        const response = await fetch(`${apiUrl}/accounts`);
         const data = await response.json();
         setAccounts(data);
       } catch (error) {
@@ -66,7 +67,7 @@ const HomePage = () => {
         `Are you sure you want to generate ${count} QR codes and download the PDF?`
       );
       if (confirmDownload) {
-        const response = await fetch("http://localhost:3000/api/uniqueIDGeneration", {
+        const response = await fetch(`${apiUrl}/uniqueIDGeneration`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({generatedIDs}),
@@ -178,7 +179,7 @@ const HomePage = () => {
 
   const handleLogout = () => {
     sessionStorage.removeItem('token');
-    router.push("/login")
+    router.push("/")
   };
 
   return (

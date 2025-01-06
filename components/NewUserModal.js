@@ -14,6 +14,7 @@ import { useRouter } from "next/navigation";
 import { toast } from "react-toastify";
 const NewUserModal = ({ isOpen, closeModal }) => {
   const router = useRouter();
+  const apiUrl = process.env.NEXT_PUBLIC_API_URL;
   const labelClasses =
     "block text-sm font-medium text-emerald-400 mb-2 flex items-center gap-2 transition-colors duration-300";
   const inputClasses = `w-full px-4 py-3 bg-zinc-900/50 border border-zinc-800 rounded-lg 
@@ -108,7 +109,7 @@ const NewUserModal = ({ isOpen, closeModal }) => {
 
     if (Object.keys(errors).length === 0) {
       try {
-        const response = await fetch("http://localhost:3000/api/addUser", {
+        const response = await fetch(`${apiUrl}/addUser`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify(userData),
