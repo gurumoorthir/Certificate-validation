@@ -1,5 +1,5 @@
 // For update the details using given unique id
-import { NextRequest, NextResponse } from "next/server";
+import {  NextResponse } from "next/server";
 import { prisma } from "../../../utils/prisma";
 
 export async function POST(req) {
@@ -22,6 +22,6 @@ export async function POST(req) {
     }
     return NextResponse.json({ message: "Password update failed" }, { status: 401 });
   } catch (error) {
-    return NextResponse.json({ message: "Server Error" }, { status: 500 });
+    return NextResponse.json({ message: "Server Error"+{error} }, { status: 500 });
   }
 }

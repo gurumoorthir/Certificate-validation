@@ -1,4 +1,4 @@
-import { NextRequest, NextResponse } from "next/server";
+import {  NextResponse } from "next/server";
 import { prisma } from "../../../utils/prisma";
 
 
@@ -35,7 +35,7 @@ export async function POST(req) {
     return NextResponse.json({ message: "Users created successfully" }, { status: 201 });
   } catch (error) {
     
-    return NextResponse.json({ message: "Server Error" }, { status: 500 });
+    return NextResponse.json({ message: "Server Error"+{error} }, { status: 500 });
   }
 }
 

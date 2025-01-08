@@ -76,7 +76,7 @@ const UserTable = ({ showVerified }) => {
 
       if (!response.ok) toast.error("Failed to save data");
 
-      const data= await response.json();
+      
       // console.log(data)
 
       
@@ -117,7 +117,7 @@ const UserTable = ({ showVerified }) => {
       router.refresh();
     } catch (error) {
       // Show error toast
-      toast.error("Failed to update account", {
+      toast.error("Failed to update account"+{error}, {
         className: "toast-error-custom",
       });
       

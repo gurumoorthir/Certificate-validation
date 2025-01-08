@@ -13,7 +13,7 @@ const User = () => {
   const [textInput, setTextInput] = useState("");
   const [open, setOpen] = useState(false);
   const [scannerVisible, setScannerVisible] = useState(false);
-  const [imageUploadVisible, setImageUploadVisible] = useState(false);
+  
   const [fetchData,setFetchData] = useState(null);
   // Reset states when modal is closed
   const handleClose = () => {

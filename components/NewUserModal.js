@@ -117,7 +117,7 @@ const NewUserModal = ({ isOpen, closeModal }) => {
 
         if (!response.ok) throw new Error("Failed to save data");
 
-        const data = await response.json();
+        
         toast.success("User Added Successfully");
         setUserData({
           unique_id: "",
