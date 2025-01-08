@@ -59,7 +59,7 @@ export async function POST(request) {
     return new Response(JSON.stringify(updatedUser), { status: 200 });
   } catch (error) {
     
-    return new Response(JSON.stringify({ message: "Failed to update user data"+{error} }), { status: 500 });
+    return new Response(JSON.stringify({ message: `Failed to update user data ${error}` }), { status: 500 });
   }
 }
 

@@ -22,6 +22,6 @@ export async function POST(req) {
     }
     return NextResponse.json({ message: "Password update failed" }, { status: 401 });
   } catch (error) {
-    return NextResponse.json({ message: "Server Error"+{error} }, { status: 500 });
+    return NextResponse.json({ message: `Server Error ${error}` }, { status: 500 });
   }
 }

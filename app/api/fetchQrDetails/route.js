@@ -59,7 +59,7 @@ export async function GET(request) {
   } catch (error) {
     
     return new Response(
-      JSON.stringify({ error: "Failed to fetch user" }),
+      JSON.stringify({ error: `Failed to fetch user ${error}` }),
       {
         status: 500,
         headers: { "Content-Type": "application/json" },
