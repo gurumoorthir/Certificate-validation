@@ -9,7 +9,7 @@ export async function GET() {
     });
   } catch (error) {
     
-    return new Response(JSON.stringify({ error: 'Failed to fetch users' }), {
+    return new Response(JSON.stringify({ error: `Failed to fetch users ${error}` }), {
       status: 500,
       headers: { 'Content-Type': 'application/json' },
     });

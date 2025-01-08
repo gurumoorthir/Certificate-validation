@@ -13,7 +13,7 @@ export async function POST(req) {
     }
 
     // Insert all userIds into the database
-    const insertedUsers = await Promise.all(
+    await Promise.all(
       generatedIDs.map((genId) =>
         prisma.user.create({
           data: {
