@@ -1,6 +1,6 @@
 
 import "./globals.css";
-import "./app.css";
+
 import { ToastContainer } from "react-toastify";
 
 
