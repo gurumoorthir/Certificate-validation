@@ -13,14 +13,14 @@ const User = () => {
   const [textInput, setTextInput] = useState("");
   const [open, setOpen] = useState(false);
   const [scannerVisible, setScannerVisible] = useState(false);
-  const [imageUploadVisible, setImageUploadVisible] = useState(false);
+  //const [imageUploadVisible, setImageUploadVisible] = useState(false);
   const [fetchData,setFetchData] = useState(null);
   // Reset states when modal is closed
   const handleClose = () => {
     setOpen(false);
     setScannerVisible(false);
     setQrCodeData("");
-    setImageUploadVisible(false);
+    //setImageUploadVisible(false);
   };
 
   const handleOpen = () => {
@@ -33,18 +33,18 @@ const User = () => {
       setOpen(false);
       setScannerVisible(false);
       setQrCodeData("");
-      setImageUploadVisible(false);
+      //setImageUploadVisible(false);
     };
   }, []);
 
   const handleButtonClickForScanner = () => {
     setScannerVisible(true);
-    setImageUploadVisible(false);
+    //setImageUploadVisible(false);
   };
 
   const handleButtonClickForImageUpload = () => {
     document.getElementById("file-input").click();
-    setImageUploadVisible(true);
+    //setImageUploadVisible(true);
     setScannerVisible(false);
   };
 
