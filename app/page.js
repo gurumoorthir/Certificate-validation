@@ -5,16 +5,21 @@ import { toast } from "react-toastify";
 import CustomModal from "../components/Modal";
 import QRScanner from "../components/QRScanner";
 import Link from "next/link";
-import { QrCode, Upload } from "lucide-react";
+import { QrCode, Upload, Loader2 } from "lucide-react";
 import "react-toastify/dist/ReactToastify.css";
-
+import QueryFooter from "../components/QueryFooter";
+import { useRouter } from "next/navigation";
 const User = () => {
+  const router = useRouter();
   const [qrCodeData, setQrCodeData] = useState("");
   const [textInput, setTextInput] = useState("");
   const [open, setOpen] = useState(false);
   const [scannerVisible, setScannerVisible] = useState(false);
   //const [imageUploadVisible, setImageUploadVisible] = useState(false);
   const [fetchData,setFetchData] = useState(null);
+  const [validating, setValidating] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+  const [model,setModel] = useState(true);
   // Reset states when modal is closed
   const handleClose = () => {
     setOpen(false);
@@ -34,6 +39,8 @@ const User = () => {
       setScannerVisible(false);
       setQrCodeData("");
       //setImageUploadVisible(false);
+      setIsLoading(false);
+      setValidating(false);
     };
   }, []);
 
@@ -47,53 +54,80 @@ const User = () => {
     //setImageUploadVisible(true);
     setScannerVisible(false);
   };
+  const simulateValidation = async () => {
+    return new Promise((resolve) => {
+      setTimeout(resolve, 1500); // Simulate network delay
+    });
+  };
 
   const handleQRCodeDataForScanner = async (data) => {
     // Immediately stop if scanner isn't visible
     if (!scannerVisible) return;
+    setIsLoading(true);
+    try{
+      await simulateValidation();
 
-    if (data !== "Wrong Input" && data !== qrCodeData) {
-      setScannerVisible(false); // First stop the scanner
-      setQrCodeData(data); // Then set the data
-      const apiUrl = process.env.NEXT_PUBLIC_API_URL;
-      const response = await fetch(`${apiUrl}/fetchQrDetails?unique_id=${data}`, {
-        method: "GET",
-      });
-
-      if (!response.ok) {
-        toast.error("Failed to validate certificate");
-        return;
-      }
-
-      const responseData = await response.json();
-      setFetchData(responseData);
-      // Use setTimeout to ensure state updates have propagated
-      setTimeout(() => {
-        toast.success(`Certificate Validated Successfully`, {
-          className: "toast-success-custom",
-          bodyClassName: "custom-toast-body",
-          progressClassName: "custom-progress-bar",
-          toastId: "scanner-success",
-          autoClose : 2000
+      if (data !== "Wrong Input" && data !== qrCodeData) {
+        setScannerVisible(false); // First stop the scanner
+        setQrCodeData(data); // Then set the data
+        const apiUrl = process.env.NEXT_PUBLIC_API_URL;
+        const response = await fetch(`${apiUrl}/fetchQrDetails?unique_id=${data}`, {
+          method: "GET",
         });
-        handleOpen();
-      }, 100);
-    } else if (data === "Wrong Input") {
-      toast.error("Invalid QR Code", {
-        className: "toast-error-custom",
-        position: toast.POSITION.TOP_CENTER,
-        autoClose: 3000,
-        hideProgressBar: false,
-        closeOnClick: true,
-        pauseOnHover: true,
-        draggable: true,
-        progress: undefined,
-        toastId: "scanner-error",
-      });
+  
+        if (!response.ok) {
+          toast.error("Failed to validate certificate");
+          return;
+        }
+  
+        const responseData = await response.json();
+        if(responseData.validation_status==="pending"){
+          router.push("/requestPending");
+          setModel(false);
+          return;
+        }
+        if(responseData.validation_status==="unlisted"){
+          router.push("/notFound");
+          setModel(false);
+          return;
+        }
+        setFetchData(responseData);
+        // Use setTimeout to ensure state updates have propagated
+        setTimeout(() => {
+          toast.success(`Certificate Validated Successfully`, {
+            className: "toast-success-custom",
+            bodyClassName: "custom-toast-body",
+            progressClassName: "custom-progress-bar",
+            toastId: "scanner-success",
+            autoClose : 2000
+          });
+          handleOpen();
+        }, 100);
+      }
+       else if (data === "Wrong Input") {
+        toast.error("Invalid QR Code", {
+          className: "toast-error-custom",
+          position: toast.POSITION.TOP_CENTER,
+          autoClose: 3000,
+          hideProgressBar: false,
+          closeOnClick: true,
+          pauseOnHover: true,
+          draggable: true,
+          progress: undefined,
+          toastId: "scanner-error",
+        });
+      }
     }
+    finally{
+      setIsLoading(false);
+    }
+
   };
 
   const handleQRCodeData = async (data) => {
+    setIsLoading(true);
+   try{
+    await simulateValidation();
     if (data !== "Wrong Input") {
       setQrCodeData(data);
       const apiUrl = process.env.NEXT_PUBLIC_API_URL;
@@ -107,6 +141,16 @@ const User = () => {
       }
 
       const responseData = await response.json();
+      if(responseData.validation_status==="pending"){
+        router.push("/requestPending");
+        setModel(false);
+        return;
+      }
+      if(responseData.validation_status==="unlisted"){
+        router.push("/notFound");
+        setModel(false);
+        return;
+      }
       setFetchData(responseData);
       
       toast.success(`Certificate Validated Successfully`, {
@@ -130,37 +174,64 @@ const User = () => {
         toastId: "upload-error",
       });
     }
+   }
+   finally{
+    setIsLoading(false);
+   }
   };
 
   const handleValidate = async () => {
     if (textInput.trim() === "") {
-      toast.error("Please enter a valid certification id to validate!", {
+      toast.error("Please enter a valid certification Id!", {
         className: "toast-error-custom",
         toastId: "validate-error",
       });
-    } else {
-      setQrCodeData(textInput);
-      const apiUrl = process.env.NEXT_PUBLIC_API_URL;
-      const response = await fetch(`${apiUrl}/fetchQrDetails?unique_id=${textInput}`, {
-        method: "GET",
-      });
-
-      if (!response.ok) {
-        toast.error("Failed to validate certificate");
-        return;
-      }
-
-      const responseData = await response.json();
-      setFetchData(responseData);
-      toast.success(`Validated ID: ${textInput}`, {
-        className: "toast-success-custom",
-        bodyClassName: "custom-toast-body",
-        progressClassName: "custom-progress-bar",
-        toastId: "validate-success",
-        autoClose : 1500
-      });
-      handleOpen();
     }
+    else{
+      try{
+        
+          setValidating(true);
+          setQrCodeData(textInput);
+          const apiUrl = process.env.NEXT_PUBLIC_API_URL;
+          const response = await fetch(`${apiUrl}/fetchQrDetails?unique_id=${textInput}`, {
+            method: "GET",
+          });
+    
+          if (!response.ok) {
+            toast.error("Failed to check the status of certificate");
+            return;
+          }
+    
+          const responseData = await response.json();
+          if(responseData.validation_status==="pending"){
+            router.push("/requestPending");
+            setModel(false);
+            return;
+          }
+           if(responseData.validation_status==="unlisted"){
+            router.push("/notFound");
+            setModel(false);
+            return;
+          }
+          setFetchData(responseData);
+          
+          toast.success(`Validated ID: ${textInput}`, {
+            className: "toast-success-custom",
+            bodyClassName: "custom-toast-body",
+            progressClassName: "custom-progress-bar",
+            toastId: "validate-success",
+            autoClose : 1500
+          });
+          handleOpen();
+          setTextInput("");
+        }
+        finally{
+          setValidating(false);
+        }
+      
+     }
+
+
   };
   return (
     <div className="relative min-h-screen bg-custom-background">
@@ -194,6 +265,14 @@ const User = () => {
         {/* Right Section: QR Scanner, Image Upload, Text Input, and Buttons */}
         <div className="flex flex-col w-full h-auto md:h-screen justify-center items-center space-y-8 p-4">
           {/* QR Scanner */}
+          {isLoading && (
+            <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+              <div className="bg-zinc-900 p-6 rounded-lg shadow-xl flex items-center space-x-4">
+                <Loader2 className="w-8 h-8 text-emerald-500 animate-spin" />
+                <span className="text-lg text-white font-bold">Checking the status of your Certificate...</span>
+              </div>
+            </div>
+          )}
           {scannerVisible && (
             <div className="flex justify-center items-center w-full sm:w-3/4 md:w-1/2 h-auto mb-8">
               <QRScanner
@@ -216,12 +295,21 @@ const User = () => {
               className="w-full sm:flex-1 h-12 px-4 rounded-md border-2 bg-slate-950 border-zinc-600 focus:border-emerald-500 focus:outline-none text-slate-100 placeholder-slate-400"
               value={textInput}
               onChange={(e) => setTextInput(e.target.value)}
+              disabled={validating}
             />
             <button
               onClick={handleValidate}
-              className="w-full sm:w-auto px-6 py-3 rounded-md bg-emerald-600 text-white font-bold hover:bg-emerald-700 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2 focus:ring-offset-slate-950 transition-all duration-300 shadow-lg hover:shadow-emerald-500/20"
+              disabled={validating}
+              className="w-full sm:w-auto px-6 py-3 rounded-md bg-emerald-600 text-white font-bold hover:bg-emerald-700 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2 focus:ring-offset-slate-950 transition-all duration-300 shadow-lg hover:shadow-emerald-500/20 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center space-x-2"
             >
-              Validate
+              {validating ? (
+                <>
+                  <Loader2 className="w-4 h-4 animate-spin" />
+                  <span>Checking...</span>
+                </>
+              ) : (
+                <span>Check Status</span>
+              )}
             </button>
           </div>
 
@@ -242,7 +330,8 @@ const User = () => {
               <button
                 key={label}
                 onClick={onClick}
-                className="w-64 sm:w-56 md:w-64 h-20 rounded-3xl relative group overflow-hidden"
+                disabled={isLoading || validating}
+                className="w-64 sm:w-56 md:w-64 h-20 rounded-3xl relative group overflow-hidden disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 <div className="absolute inset-0 bg-gradient-to-r from-zinc-900 to-zinc-800 transition-all duration-300" />
                 <div className="absolute inset-0 bg-gradient-to-r from-emerald-600 to-emerald-400 opacity-0 group-hover:opacity-20 transition-all duration-300" />
@@ -267,9 +356,9 @@ const User = () => {
               </Link>
             </h1>
           </div>
-
+            
           {/* Display Modal only if QR Code data is generated */}
-          {qrCodeData && qrCodeData !== "" && qrCodeData !== "Wrong Input" && (
+          {qrCodeData && qrCodeData !== "" && qrCodeData !== "Wrong Input"  && model &&  (
             <CustomModal
               open={open}
               handleClose={handleClose}
@@ -282,6 +371,7 @@ const User = () => {
           )}
         </div>
       </div>
+      <QueryFooter />
     </div>
   );
 };

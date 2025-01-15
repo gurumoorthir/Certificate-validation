@@ -4,12 +4,13 @@ import Link from "next/link";
 import React, { useState } from "react";
 import { useRouter } from "next/navigation";
 import {  toast } from "react-toastify";
-import { LockKeyhole, User } from "lucide-react";
+import { LockKeyhole, User , Loader2} from "lucide-react";
 
 function Admin() {
   const [adminId, setAdminId] = useState("");
   const [password, setPassword] = useState("");
   const [focused, setFocused] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
   const router = useRouter();
 
   const notifySuccess = () => {
@@ -22,7 +23,7 @@ function Admin() {
 
   const handleLogin = async (e) => {
     e.preventDefault(); // Prevent form from refreshing the page
-
+    setIsLoading(true);
     try {
       const apiUrl = process.env.NEXT_PUBLIC_API_URL;
       const response = await fetch(`${apiUrl}/login`, {
@@ -47,6 +48,9 @@ function Admin() {
     } catch (error) {
       console.error("Error during login:", error);
       alert("An error occurred. Please try again.");
+    }
+    finally {
+      setIsLoading(false);
     }
   };
 
@@ -128,6 +132,7 @@ function Admin() {
               onFocus={() => setFocused("password")}
               onBlur={() => setFocused("")}
               onChange={(e) => setPassword(e.target.value)}
+              disabled={isLoading}
               required
               className="w-full mt-1 px-4 py-3 bg-slate-900/50 border border-emerald-500/30 rounded-md 
                          focus:ring-2 focus:ring-emerald-500 focus:border-transparent focus:outline-none
@@ -137,25 +142,35 @@ function Admin() {
           </div>
 
           {/* Forgot Password */}
-          <div className="text-right mt-6 transform transition-all duration-300 hover:translate-x-1">
+          {/* <div className="text-right mt-6 transform transition-all duration-300 hover:translate-x-1">
             <Link
               href="/forgot-password"
               className="text-sm text-emerald-400 hover:text-emerald-300 transition-colors duration-200"
             >
               Forgot Password?
             </Link>
-          </div>
+          </div> */}
 
           {/* Login Button */}
           <div className="mt-6">
-            <button
+          <button
               type="submit"
+              disabled={isLoading}
               className="w-full bg-emerald-500 text-white py-3 rounded-md font-semibold
-                         hover:bg-emerald-600 focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2 
-                         focus:ring-offset-slate-950 focus:outline-none transition-all duration-300
-                         shadow-lg hover:shadow-emerald-500/20 transform hover:-translate-y-1"
+                       hover:bg-emerald-600 focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2 
+                       focus:ring-offset-slate-950 focus:outline-none transition-all duration-300
+                       shadow-lg hover:shadow-emerald-500/20 transform hover:-translate-y-1
+                       disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:transform-none
+                       flex items-center justify-center gap-2"
             >
-              Login
+              {isLoading ? (
+                <>
+                  <Loader2 className="w-5 h-5 animate-spin" />
+                  <span>Logging in...</span>
+                </>
+              ) : (
+                "Login"
+              )}
             </button>
           </div>
         </form>

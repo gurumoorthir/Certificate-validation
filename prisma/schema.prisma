@@ -19,7 +19,7 @@ model User {
   certification_type String?
   achievement_level  String?
   date_of_issue      DateTime?
-  validation_status  Boolean   @default(false)
+  validation_status  String?   @default("pending")
   date_of_validation DateTime?
 
   createdAt DateTime @default(now())

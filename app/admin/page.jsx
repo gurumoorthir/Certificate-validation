@@ -4,13 +4,14 @@ import UserTable from "../../components/UserTable";
 import NewUserModal from '../../components/NewUserModal'
 import jsPDF from "jspdf";
 import QRCode from "qrcode";
-import { PlusCircle, Key, Users, LogOut } from "lucide-react";
+import { PlusCircle, Key, Users, LogOut ,FileSpreadsheet } from "lucide-react";
 import { useRouter } from "next/navigation";
+import * as XLSX from 'xlsx';
 const HomePage = () => {
   const router = useRouter();
   const apiUrl = process.env.NEXT_PUBLIC_API_URL;
   const [accounts, setAccounts] = useState([]);
-  const [showVerified, setShowVerified] = useState(false);
+  const [showVerified, setShowVerified] = useState("pending");
   const [showModal, setShowModal] = useState(false);
   const [showGenerateModal, setShowGenerateModal] = useState(false); // For the "Generate Unique IDs" modal
   const [count, setCount] = useState(""); // For storing the user input for the count of unique IDs
@@ -35,7 +36,13 @@ const HomePage = () => {
   }, [showModal]);
 
   const toggleVerified = () => {
-    setShowVerified(!showVerified);
+    if(showVerified==="pending"){
+      setShowVerified("validated");
+    }
+    else{
+      setShowVerified("pending");
+    }
+    
   };
 
   const handleGenerate = async () => {
@@ -177,6 +184,25 @@ const HomePage = () => {
     doc.save("CTF_Certification_IDs.pdf");
   };
 
+  const handleExportExcel = () => {
+    // Show confirmation dialog
+    const confirmExport = window.confirm("Are you sure you want to export the data as Excel?");
+    
+    if (confirmExport) {
+      try {
+        // Convert accounts data to Excel format
+        const worksheet = XLSX.utils.json_to_sheet(accounts);
+        const workbook = XLSX.utils.book_new();
+        XLSX.utils.book_append_sheet(workbook, worksheet, "Accounts");
+        
+        // Generate and download Excel file
+        XLSX.writeFile(workbook, "CTF_Accounts_Data.xlsx");
+      } catch (error) {
+        console.error("Error exporting data:", error);
+        alert("Failed to export data. Please try again.");
+      }
+    }
+  };
   const handleLogout = () => {
     sessionStorage.removeItem('token');
     router.push("/")
@@ -205,12 +231,12 @@ const HomePage = () => {
                 className={`px-6 py-2 font-medium rounded-md transform transition-all duration-300 
                          hover:scale-105 active:scale-95 shadow-lg flex items-center gap-2
                          ${
-                           showVerified
+                           showVerified ==="validated"
                              ? "bg-green-500 text-black hover:bg-green-400 shadow-green-500/50"
                              : "bg-red-500 text-black hover:bg-red-400 shadow-red-500/50"
                          }`}
               >
-                {showVerified ? "Show Not Validated" : "Show Validated"}
+                {showVerified==="validated" ? "Show Not Validated" : "Show Validated"}
               </button>
               
               
@@ -239,6 +265,16 @@ const HomePage = () => {
           >
             <Key size={20} />
             Generate Unique IDs
+          </button>
+          <button
+            className="px-4 py-2 bg-purple-500 text-black font-medium rounded-md 
+                   hover:bg-purple-400 transform transition-all duration-300
+                   hover:scale-105 active:scale-95 shadow-lg shadow-purple-500/50
+                   flex items-center justify-center gap-2 sm:col-span-2 lg:col-span-1"
+                   onClick={handleExportExcel}
+          >
+             <FileSpreadsheet size={20} />
+            <span>Export Data</span>
           </button>
         </div>
         {showModal && (
