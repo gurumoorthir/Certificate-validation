@@ -418,7 +418,7 @@ const NewUserModal = ({ isOpen, closeModal }) => {
 
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [showScanner, setShowScanner] = useState(false);
-  const [imageUploadVisible, setImageUploadVisible] = useState(false);
+  //const [imageUploadVisible, setImageUploadVisible] = useState(false);
   const [userData, setUserData] = useState({
     unique_id: "",
     name: "",
@@ -460,7 +460,7 @@ const NewUserModal = ({ isOpen, closeModal }) => {
         draggable: true,
       });
     }
-    setImageUploadVisible(false);
+    //setImageUploadVisible(false);
   };
 
   const handleQRCodeDataForScanner = (data) => {
