@@ -449,15 +449,17 @@ const NewUserModal = ({ isOpen, closeModal }) => {
         closeOnClick: true,
         pauseOnHover: true,
         draggable: true,
+        autoClose : 2000,
       });
     } else {
-      toast.error("No QR code detected in the image", {
+      toast.error("Invalid QR Code", {
         position: "top-right",
         autoClose: 3000,
         hideProgressBar: false,
         closeOnClick: true,
         pauseOnHover: true,
         draggable: true,
+        autoClose : 2000,
       });
     }
     //setImageUploadVisible(false);
@@ -474,11 +476,12 @@ const NewUserModal = ({ isOpen, closeModal }) => {
       }));
 
       
-        toast.success(`User Found Successfully`, {
+        toast.success(`QR Code read successfully!`, {
           className: "toast-success-custom",
           bodyClassName: "custom-toast-body",
           progressClassName: "custom-progress-bar",
           toastId: "scanner-success",
+          autoClose : 2000,
         });
       
     } else if (data === "Wrong Input") {
@@ -492,6 +495,7 @@ const NewUserModal = ({ isOpen, closeModal }) => {
         draggable: true,
         progress: undefined,
         toastId: "scanner-error",
+        autoClose : 2000.
       });
     }
   };
@@ -557,7 +561,7 @@ const NewUserModal = ({ isOpen, closeModal }) => {
         label: "Validation Status",
         type: "select",
         icon: <Check className="text-emerald-400" size={16} />,
-        options: ["verified", "pending", "unlisted"]
+        options: ["pending","validated", "unlisted"]
       },
       {
         id: "date_of_validation",

@@ -1,12 +1,21 @@
-'use client'
+"use client";
 import { useState, useEffect } from "react";
 import UserTable from "../../components/UserTable";
-import NewUserModal from '../../components/NewUserModal'
+import NewUserModal from "../../components/NewUserModal";
+import SearchInput from "../../components/SearchInput";
 import jsPDF from "jspdf";
 import QRCode from "qrcode";
-import { PlusCircle, Key, Users, LogOut ,FileSpreadsheet } from "lucide-react";
+import {
+  PlusCircle,
+  Key,
+  Users,
+  LogOut,
+  FileSpreadsheet,
+  Search,
+  X,
+} from "lucide-react";
 import { useRouter } from "next/navigation";
-import * as XLSX from 'xlsx';
+import * as XLSX from "xlsx";
 const HomePage = () => {
   const router = useRouter();
   const apiUrl = process.env.NEXT_PUBLIC_API_URL;
@@ -15,15 +24,17 @@ const HomePage = () => {
   const [showModal, setShowModal] = useState(false);
   const [showGenerateModal, setShowGenerateModal] = useState(false); // For the "Generate Unique IDs" modal
   const [count, setCount] = useState(""); // For storing the user input for the count of unique IDs
-  
+  const itemsPerPage = 50;
+  const [currentPage, setCurrentPage] = useState(1);
+  const [searchTerm, setSearchTerm] = useState("");
+
   useEffect(() => {
-    const token = sessionStorage.getItem('token');
+    const token = sessionStorage.getItem("token");
     if (!token) {
-      router.push('/login');
+      router.push("/login");
     }
     const fetchAccounts = async () => {
       try {
-        
         const response = await fetch(`${apiUrl}/accounts`);
         const data = await response.json();
         setAccounts(data);
@@ -35,14 +46,30 @@ const HomePage = () => {
     fetchAccounts();
   }, [showModal]);
 
+  const filteredAccounts = accounts.filter((account) => {
+    const searchLower = searchTerm.toLowerCase();
+    return (
+      account.name?.toLowerCase().includes(searchLower) ||
+      account.email?.toLowerCase().includes(searchLower) ||
+      account.mobile?.toLowerCase().includes(searchLower) ||
+      account.unique_id?.toLowerCase().includes(searchLower)
+    );
+  });
+
+  // Pagination logic
+  const totalPages = Math.ceil(filteredAccounts.length / itemsPerPage);
+  const startIndex = (currentPage - 1) * itemsPerPage;
+  const paginatedAccounts = filteredAccounts.slice(
+    startIndex,
+    startIndex + itemsPerPage
+  );
+
   const toggleVerified = () => {
-    if(showVerified==="pending"){
+    if (showVerified === "pending") {
       setShowVerified("validated");
-    }
-    else{
+    } else {
       setShowVerified("pending");
     }
-    
   };
 
   const handleGenerate = async () => {
@@ -52,17 +79,19 @@ const HomePage = () => {
     }
 
     try {
+      // Collect existing IDs into a Set for efficient lookups
       const existingIDs = new Set(accounts.map((account) => account.unique_id));
 
+      // Array to store newly generated IDs
       const generatedIDs = [];
 
       for (let i = 0; i < Number(count); i++) {
         let newID;
         do {
-          newID = `UID-${Date.now()}-${Math.random()
-            .toString(36)
-            .substring(2, 8)}`;
-        } while (existingIDs.has(newID));
+          // Generate a new random ID directly in the loop
+          const randomPart = Math.random().toString(36).substring(2, 8); // Generate a 6-character random string
+          newID = `CTF-${randomPart}`;
+        } while (existingIDs.has(newID)); // Ensure the new ID is unique
         existingIDs.add(newID);
 
         generatedIDs.push({
@@ -70,20 +99,35 @@ const HomePage = () => {
         });
       }
 
+      // Confirm before proceeding with the download
       const confirmDownload = window.confirm(
         `Are you sure you want to generate ${count} QR codes and download the PDF?`
       );
+
       if (confirmDownload) {
+        // Make an API call to save the generated IDs
         const response = await fetch(`${apiUrl}/uniqueIDGeneration`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({generatedIDs}),
+          body: JSON.stringify({ generatedIDs }),
         });
+
+        if (!response.ok) {
+          throw new Error("Failed to save unique IDs to the server.");
+        }
+
         const data = await response.json();
+
+        // Update the state with new accounts
         setAccounts((prevAccounts) => [...prevAccounts, ...generatedIDs]);
+
         alert(`${count} unique IDs generated successfully!`);
+
+        // Generate and download the QR codes in a PDF
         generateQRCodePDF(generatedIDs);
-        setShowGenerateModal(false); // Close the modal after completion
+
+        // Close the modal after completion
+        setShowGenerateModal(false);
       }
     } catch (error) {
       console.error("Error generating unique IDs:", error);
@@ -186,15 +230,17 @@ const HomePage = () => {
 
   const handleExportExcel = () => {
     // Show confirmation dialog
-    const confirmExport = window.confirm("Are you sure you want to export the data as Excel?");
-    
+    const confirmExport = window.confirm(
+      "Are you sure you want to export the data as Excel?"
+    );
+
     if (confirmExport) {
       try {
         // Convert accounts data to Excel format
         const worksheet = XLSX.utils.json_to_sheet(accounts);
         const workbook = XLSX.utils.book_new();
         XLSX.utils.book_append_sheet(workbook, worksheet, "Accounts");
-        
+
         // Generate and download Excel file
         XLSX.writeFile(workbook, "CTF_Accounts_Data.xlsx");
       } catch (error) {
@@ -204,8 +250,8 @@ const HomePage = () => {
     }
   };
   const handleLogout = () => {
-    sessionStorage.removeItem('token');
-    router.push("/")
+    sessionStorage.removeItem("token");
+    router.push("/");
   };
 
   return (
@@ -215,35 +261,50 @@ const HomePage = () => {
                     transform transition-all duration-500 hover:shadow-green-500/5
                     animate-fadeIn"
       >
-        
         {/* Header Section with Logout */}
         <div className="flex flex-col sm:flex-row justify-between items-center gap-4 sm:gap-0 mb-6">
           <div className="flex items-center justify-between w-full">
-            <h2 className="text-2xl sm:text-3xl font-bold text-green-400 tracking-wider text-center sm:text-left
-                         transform transition-all duration-300 hover:scale-102">
+            <h2
+              className="text-2xl sm:text-3xl font-bold text-green-400 tracking-wider text-center sm:text-left
+                         transform transition-all duration-300 hover:scale-102"
+            >
               <Users className="inline-block mr-2 animate-bounce" />
               Event Accounts
             </h2>
-            
+
             <div className="flex items-center gap-4">
               <button
                 onClick={toggleVerified}
                 className={`px-6 py-2 font-medium rounded-md transform transition-all duration-300 
                          hover:scale-105 active:scale-95 shadow-lg flex items-center gap-2
                          ${
-                           showVerified ==="validated"
+                           showVerified === "validated"
                              ? "bg-green-500 text-black hover:bg-green-400 shadow-green-500/50"
                              : "bg-red-500 text-black hover:bg-red-400 shadow-red-500/50"
                          }`}
               >
-                {showVerified==="validated" ? "Show Not Validated" : "Show Validated"}
+                {showVerified === "validated"
+                  ? "Show Not Validated"
+                  : "Show Validated"}
               </button>
-              
-              
+              <button
+                onClick={handleLogout}
+                className="px-6 py-2 bg-red-500 text-black font-medium rounded-md 
+                         hover:bg-red-400 transform transition-all duration-300
+                         hover:scale-105 active:scale-95 shadow-lg shadow-red-500/50
+                         flex items-center gap-2"
+              >
+                <LogOut size={20} />
+                Logout
+              </button>
             </div>
           </div>
         </div>
 
+        <SearchInput 
+        searchTerm={searchTerm} 
+        setSearchTerm={setSearchTerm} 
+      />
         {/* Action Buttons */}
         <div className="flex justify-center sm:justify-start gap-4 mb-6">
           <button
@@ -271,9 +332,9 @@ const HomePage = () => {
                    hover:bg-purple-400 transform transition-all duration-300
                    hover:scale-105 active:scale-95 shadow-lg shadow-purple-500/50
                    flex items-center justify-center gap-2 sm:col-span-2 lg:col-span-1"
-                   onClick={handleExportExcel}
+            onClick={handleExportExcel}
           >
-             <FileSpreadsheet size={20} />
+            <FileSpreadsheet size={20} />
             <span>Export Data</span>
           </button>
         </div>
@@ -329,21 +390,73 @@ const HomePage = () => {
           </div>
         )}
 
-        {/* User Table Component would go here */}
         <div className="animate-fadeIn">
-          <UserTable  showVerified={showVerified} />
+          <UserTable accounts={paginatedAccounts} showVerified={showVerified} />
+
+          {/* Pagination Controls */}
+          {totalPages > 1 && (
+            <div className="mt-4 flex justify-center items-center gap-2">
+              <button
+                onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
+                disabled={currentPage === 1}
+                className="px-3 py-1 bg-green-500 text-black rounded-md disabled:opacity-50
+               hover:bg-green-400 transform transition-all duration-300"
+              >
+                Previous
+              </button>
+
+              <div className="flex gap-1">
+                {[...Array(totalPages)].map((_, index) => {
+                  const pageNumber = index + 1;
+                  // Show first page, last page, current page, and pages around current
+                  const shouldShow =
+                    pageNumber === 1 ||
+                    pageNumber === totalPages ||
+                    Math.abs(currentPage - pageNumber) <= 2;
+
+                  // Show dots for gaps
+                  if (!shouldShow) {
+                    if (pageNumber === 2 || pageNumber === totalPages - 1) {
+                      return (
+                        <span key={pageNumber} className="text-green-400">
+                          ...
+                        </span>
+                      );
+                    }
+                    return null;
+                  }
+
+                  return (
+                    <button
+                      key={pageNumber}
+                      onClick={() => setCurrentPage(pageNumber)}
+                      className={`w-8 h-8 rounded-md transition-all duration-300
+                     ${
+                       currentPage === pageNumber
+                         ? "bg-green-500 text-black font-medium"
+                         : "bg-gray-800 text-green-400 hover:bg-gray-700"
+                     }`}
+                    >
+                      {pageNumber}
+                    </button>
+                  );
+                })}
+              </div>
+
+              <button
+                onClick={() =>
+                  setCurrentPage((prev) => Math.min(prev + 1, totalPages))
+                }
+                disabled={currentPage === totalPages}
+                className="px-3 py-1 bg-green-500 text-black rounded-md disabled:opacity-50
+               hover:bg-green-400 transform transition-all duration-300"
+              >
+                Next
+              </button>
+            </div>
+          )}
         </div>
       </div>
-      <button
-                 onClick={handleLogout}
-                className="px-6 py-2 bg-red-500 text-black font-medium rounded-md 
-                         hover:bg-red-400 transform transition-all duration-300
-                         hover:scale-105 active:scale-95 shadow-lg shadow-red-500/50
-                         flex items-center gap-2"
-              >
-                <LogOut size={20} />
-                Logout
-              </button>
     </div>
   );
 };

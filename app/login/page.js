@@ -3,13 +3,14 @@ import Image from "next/image";
 import React, { useState } from "react";
 import { useRouter } from "next/navigation";
 import {  toast } from "react-toastify";
-import { LockKeyhole, User , Loader2} from "lucide-react";
+import { LockKeyhole, User , Loader2, Eye, EyeOff } from "lucide-react";
 
 function Admin() {
   const [adminId, setAdminId] = useState("");
   const [password, setPassword] = useState("");
   const [focused, setFocused] = useState("");
   const [isLoading, setIsLoading] = useState(false);
+  const [showPassword, setShowPassword] = useState(true);
   const router = useRouter();
 
   const notifySuccess = () => {
@@ -123,21 +124,35 @@ function Admin() {
               <LockKeyhole size={16} className="text-emerald-400" />
               Password
             </label>
-            <input
-              type="password"
-              id="password"
-              placeholder="Enter your password"
-              value={password}
-              onFocus={() => setFocused("password")}
-              onBlur={() => setFocused("")}
-              onChange={(e) => setPassword(e.target.value)}
-              disabled={isLoading}
-              required
-              className="w-full mt-1 px-4 py-3 bg-slate-900/50 border border-emerald-500/30 rounded-md 
-                         focus:ring-2 focus:ring-emerald-500 focus:border-transparent focus:outline-none
-                         text-slate-100 placeholder-slate-400 transition-all duration-300
-                         hover:border-emerald-500/50"
-            />
+            <div className="relative">
+                <input
+                  type={!showPassword ? "text" : "password"}
+                  id="password"
+                  placeholder="Enter your password"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  onFocus={() => setFocused("password")}
+                  onBlur={() => setFocused("")}
+                  disabled={isLoading}
+                  className="w-full mt-1 px-4 py-3 bg-slate-900/50 border border-emerald-500/30 rounded-md 
+                          focus:ring-2 focus:ring-emerald-500 focus:border-transparent focus:outline-none
+                          text-slate-100 placeholder-slate-400 transition-all duration-300
+                          hover:border-emerald-500/50 disabled:opacity-50 disabled:cursor-not-allowed"
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword(!showPassword)}
+                  className="absolute right-3 top-1/2 transform -translate-y-1/2 text-emerald-400 
+                           hover:text-emerald-300 transition-colors duration-200 focus:outline-none"
+                  disabled={isLoading}
+                >
+                  {showPassword ? (
+                    <EyeOff size={16} className="opacity-75 hover:opacity-100" />
+                  ) : (
+                    <Eye size={16} className="opacity-75 hover:opacity-100" />
+                  )}
+                </button>
+              </div>
           </div>
 
           {/* Forgot Password */}

@@ -1,4 +1,3 @@
-// components/CustomModal.js
 import {
   Calendar,
   Mail,
@@ -15,22 +14,6 @@ import {
 import PropTypes from "prop-types";
 
 const CustomModal = ({ open, handleClose, fetchData}) => {
-  // Sample data structure
-  // const defaultData = {
-  //   unique_id: "UID-1735726597476-9hlopb",
-  //   name: "John Doe",
-  //   email: "john.doe@example.com",
-  //   mobile: "9876543210",
-  //   fest_name: "Tech Fest 2025",
-  //   event: "Hackathon",
-  //   certification_type: "Participation",
-  //   achievement_level: "Top 10",
-  //   date_of_issue: "2025-01-01",
-  //   validation_status: true,
-  //   date_of_validation: "2025-01-02",
-  // };
-
-  // Use provided data or fallback to default
   const data = fetchData;
 
   return (
