@@ -242,7 +242,7 @@ const User = () => {
         onClick={() => (window.location.href = "https://cegtechforum.in/")}
       >
         <img
-          src="/CTF-logo.png"
+          src="/CTF-Logo.png"
           alt="Company Logo"
           className="w-12 h-10 md:w-12 md:h-9 object-contain"
         />

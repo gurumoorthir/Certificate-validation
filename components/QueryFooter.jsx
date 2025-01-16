@@ -32,11 +32,11 @@ const QueryFooter = () => {
       formData.append('_replyto', formData.get('email'));
       
       
-       formData.append('_cc', 'balajijayakumar777@gmail.com');
+       formData.append('_cc', 'qms@cegtechforum.in,techops@cegtechforum.in');
       
      
       const response = await fetch(
-        "https://formsubmit.co/ajax/guruceg2026@gmail.com",
+        "https://formsubmit.co/ajax/hospitality@cegtechforum.in",
         {
           method: "POST",
           headers: {
