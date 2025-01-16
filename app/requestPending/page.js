@@ -5,14 +5,9 @@ import { useState, useEffect } from "react";
 
 const RequestSent = () => {
   const navigate = useRouter();
-  const [showPulse, setShowPulse] = useState(true);
+  
 
-  useEffect(() => {
-    const interval = setInterval(() => {
-      setShowPulse((prev) => !prev);
-    }, 2000);
-    return () => clearInterval(interval);
-  }, []);
+ 
 
   return (
     <div className="relative min-h-screen bg-gradient-to-b from-zinc-900 via-zinc-800 to-zinc-900 flex items-center justify-center p-4 overflow-hidden">
