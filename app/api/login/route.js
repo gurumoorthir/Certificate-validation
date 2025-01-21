@@ -17,9 +17,9 @@ export async function POST(request) {
   }
 
   if (user.password === password) {
-    const token = "ctf_admin_token"; // Replace with a real JWT or token
+    const token = "ctf_admin_token"; 
 
-    // Set cookie using NextResponse
+    
     const response = NextResponse.json({ message: "Login successful" });
     response.headers.set(
       "Set-Cookie",

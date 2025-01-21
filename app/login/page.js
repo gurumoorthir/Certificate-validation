@@ -155,17 +155,9 @@ function Admin() {
               </div>
           </div>
 
-          {/* Forgot Password */}
-          {/* <div className="text-right mt-6 transform transition-all duration-300 hover:translate-x-1">
-            <Link
-              href="/forgot-password"
-              className="text-sm text-emerald-400 hover:text-emerald-300 transition-colors duration-200"
-            >
-              Forgot Password?
-            </Link>
-          </div> */}
+          
 
-          {/* Login Button */}
+          
           <div className="mt-6">
           <button
               type="submit"

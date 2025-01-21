@@ -19,7 +19,8 @@ import {
   Save,
 } from "lucide-react";
 import { toast } from "react-toastify";
-const UserTable = ({ accounts, showVerified }) => {
+const UserTable = ({ accounts, showVerified, handleRefresh}) => {
+
   const apiUrl = process.env.NEXT_PUBLIC_API_URL;
   // const [accounts, setAccounts] = useState([]);
   const [selectedAccount, setSelectedAccount] = useState(null);
@@ -41,7 +42,8 @@ const UserTable = ({ accounts, showVerified }) => {
     setIsModalOpen(true);
     setIsEditing(false);
   };
-  // Lock body scroll when modal is open
+  
+  
   useEffect(() => {
     if (isModalOpen) {
       document.body.style.overflow = 'hidden';
@@ -106,27 +108,19 @@ const UserTable = ({ accounts, showVerified }) => {
     setIsLoading(true);
 
     try {
-      
-      // Call the update function
       const updatedAccount = await updateAccount(editedData);
 
-      // Update local state
+      
       setSelectedAccount(updatedAccount);
       setEditedData(updatedAccount);
       setIsEditing(false);
-
-      // Update the accounts list through the callback
-      // onUpdateAccount(updatedAccount);
-
-      // Show success toast
       toast.success("Account updated successfully!", {
         autoClose: 2000,
-        // id: loadingToastId,
         className: "toast-success-custom",
       });
-      router.refresh();
+      setIsLoading(false);
+      
     } catch (error) {
-      // Show error toast
       toast.error("Failed to update account" + { error }, {
         className: "toast-error-custom",
       });

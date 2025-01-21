@@ -5,6 +5,7 @@ import NewUserModal from "../../components/NewUserModal";
 import SearchInput from "../../components/SearchInput";
 import jsPDF from "jspdf";
 import QRCode from "qrcode";
+import { revalidatePath } from 'next/cache';
 import {
   PlusCircle,
   Key,
@@ -17,6 +18,7 @@ import {
 import { useRouter } from "next/navigation";
 import * as XLSX from "xlsx";
 const HomePage = () => {
+
   const router = useRouter();
   const apiUrl = process.env.NEXT_PUBLIC_API_URL;
   const [accounts, setAccounts] = useState([]);
@@ -27,6 +29,24 @@ const HomePage = () => {
   const itemsPerPage = 50;
   const [currentPage, setCurrentPage] = useState(1);
   const [searchTerm, setSearchTerm] = useState("");
+
+  const handleRefresh = async () => {
+    try {
+      const res = await fetch(`${apiUrl}/revalidate`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ path: '/admin/' }), 
+      });
+
+      if (res.ok) {
+        console.log('Revalidation triggered successfully');
+      } else {
+        console.error('Failed to revalidate');
+      }
+    } catch (err) {
+      console.error('Error:', err);
+    }
+  };
 
   useEffect(() => {
     const token = sessionStorage.getItem("token");
@@ -391,7 +411,7 @@ const HomePage = () => {
         )}
 
         <div className="animate-fadeIn">
-          <UserTable accounts={paginatedAccounts} showVerified={showVerified} />
+          <UserTable accounts={paginatedAccounts}  showVerified={showVerified} handleRefresh={handleRefresh} />
 
           {/* Pagination Controls */}
           {totalPages > 1 && (
