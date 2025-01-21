@@ -1,5 +1,4 @@
 "use client";
-import { useRouter } from "next/navigation";
 import PropTypes from "prop-types";
 import { useState, useEffect } from "react";
 import {
@@ -22,7 +21,6 @@ import { toast } from "react-toastify";
 const UserTable = ({ accounts, showVerified}) => {
 
   const apiUrl = process.env.NEXT_PUBLIC_API_URL;
-  // const [accounts, setAccounts] = useState([]);
   const [selectedAccount, setSelectedAccount] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
