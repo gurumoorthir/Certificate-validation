@@ -19,7 +19,7 @@ import {
   Save,
 } from "lucide-react";
 import { toast } from "react-toastify";
-const UserTable = ({ accounts, showVerified, handleRefresh}) => {
+const UserTable = ({ accounts, showVerified}) => {
 
   const apiUrl = process.env.NEXT_PUBLIC_API_URL;
   // const [accounts, setAccounts] = useState([]);
@@ -30,7 +30,7 @@ const UserTable = ({ accounts, showVerified, handleRefresh}) => {
   const [isLoading, setIsLoading] = useState(false);
   const [scrollPosition, setScrollPosition] = useState(0);
 
-  const router = useRouter();
+ 
 
   const filteredAccounts = accounts.filter(
     (account) => account.validation_status === showVerified
